@@ -16,6 +16,8 @@
     "@emotion/styled": "latest",
     "@mui/icons-material": "latest",
     "@mui/material": "latest",
+    "axios": "^1.4.0",
+    "axios-hooks": "^4.0.0",
     "next": "latest",
     "prop-types": "latest",
     "react": "latest",
