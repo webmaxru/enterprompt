@@ -18,10 +18,12 @@
     "@mui/material": "latest",
     "axios": "^1.4.0",
     "axios-hooks": "^4.0.0",
+    "formik": "^2.4.1",
     "next": "latest",
     "prop-types": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "yup": "^1.2.0"
   },
   "devDependencies": {
     "eslint": "latest",
