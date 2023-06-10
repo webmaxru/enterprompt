@@ -28,6 +28,12 @@ import ForumIcon from '@mui/icons-material/Forum';
 import SchoolIcon from '@mui/icons-material/School';
 import { SvgIcon } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import ReactGA from 'react-ga4';
+
+import ServiceWorkerRegistration from '../src/ServiceWorkerRegistration';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -52,6 +58,9 @@ const navItems = [
 ];
 
 const title = 'Enterprise Prompting';
+
+ReactGA.initialize('G-Y7S54HDYHJ');
+ReactGA.send('pageview');
 
 export default function MyApp(props) {
   const axios = Axios.create({
@@ -102,7 +111,86 @@ export default function MyApp(props) {
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <title>
+          {`Enterprise Prompt Engineering - Your company's very own ChatGPT`}
+        </title>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+          Enterprise Prompt Engineering - Your company's very own ChatGPT
+        </title>
+        <meta
+          name="description"
+          content="ChatGPT-powered bot which only uses your enterprise data"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/images/icons/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/images/icons/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/images/icons/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/app.webmanifest" />
+        <meta name="msapplication-TileColor" content="#b00318" />
+        <meta
+          name="msapplication-TileImage"
+          content="/images/icons/mstile-150x150.png"
+        />
+        <meta
+          property="og:url"
+          content="https://enterprise.promptengineering.rocks"
+        />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content="Enterprise Prompt Engineering - Your company's very own ChatGPT"
+        />
+        <meta
+          property="og:description"
+          content="ChatGPT-powered bot which only uses your enterprise data"
+        />
+        <meta
+          property="og:image"
+          content="https://enterprise.promptengineering.rocks/images/social.png"
+        />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          property="twitter:domain"
+          content="enterprise.promptengineering.rocks"
+        />
+        <meta
+          property="twitter:url"
+          content="https://enterprise.promptengineering.rocks"
+        />
+        <meta
+          name="twitter:title"
+          content="Enterprise Prompt Engineering - Your company's very own ChatGPT"
+        />
+        <meta
+          name="twitter:description"
+          content="ChatGPT-powered bot which only uses your enterprise data"
+        />
+        <meta
+          name="twitter:image"
+          content="https://enterprise.promptengineering.rocks/images/social.png"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="true"
+        />
       </Head>
       <ThemeProvider theme={theme}>
         <Box sx={{ display: 'flex' }}>
@@ -175,6 +263,8 @@ export default function MyApp(props) {
             <Copyright sx={{ pt: 4 }} />
           </Box>
         </Box>
+        <ToastContainer position={toast.POSITION.BOTTOM_RIGHT} />
+        <ServiceWorkerRegistration />
       </ThemeProvider>
     </CacheProvider>
   );

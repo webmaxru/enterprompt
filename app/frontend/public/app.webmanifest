@@ -1,0 +1,25 @@
+{
+    "short_name": "Enterprise Prompt Engineering",
+    "name": "Enterprise Prompt Engineering - Your company's very own ChatGPT",
+    "description": "ChatGPT-powered bot which only uses your enterprise data",
+    "start_url": "/?utm_source=homescreen",
+    "display": "standalone",
+    "display_override": ["window-control-overlay", "minimal-ui"],
+    "theme_color": "#2D593C",
+    "background_color": "#2D593C",
+    "orientation": "portrait",
+    "scope": "/",
+    "categories": ["developer", "developer tools", "development"],
+    "icons": [
+        {
+            "src": "/images/icons/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/icons/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
