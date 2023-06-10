@@ -3,22 +3,33 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import ProTip from '../src/ProTip';
 import Link from '../src/Link';
-import Copyright from '../src/Copyright';
 
 export default function About() {
   return (
     <Container maxWidth="sm">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Material UI - Next.js example
+          How does it work?
         </Typography>
+        This is an alternative UI for the{' '}
+        <Link href="https://github.com/Azure-Samples/azure-search-openai-demo/">
+          ChatGPT + Enterprise data with Azure OpenAI and Cognitive Search
+        </Link>{' '}
+        project.
+        <p align="center">
+          <img src="/images/appcomponents.png" width="100%" />
+        </p>
+        Your{' '}
+        <Link href="https://github.com/webmaxru/enterprompt/issues">
+          comments, bug reports, and pull requests
+        </Link>{' '}
+        are very welcome!
+        <br />
+        <br />
         <Button variant="contained" component={Link} noLinkStyle href="/">
-          Go to the main page
+          Back to chat
         </Button>
-        <ProTip />
-        <Copyright />
       </Box>
     </Container>
   );
