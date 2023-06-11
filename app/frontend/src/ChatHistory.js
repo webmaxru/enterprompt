@@ -85,7 +85,7 @@ export default function ChatHistory(props) {
                         variant="body2"
                         color="text.primary"
                       >
-                        {item['bot'] != '...' ? (
+                        {item['bot'] ? (
                           item['bot']
                         ) : (
                           <CircularProgress disableShrink />

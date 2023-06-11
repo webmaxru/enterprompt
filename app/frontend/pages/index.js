@@ -12,6 +12,9 @@ import { useFormik } from 'formik';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import ChatHistory from '../src/ChatHistory';
+import prompts from '../../promptengineering/prompts.json';
+import defaultSuggestions from '../../promptengineering/suggestions.json';
+import defaultQuickStarts from '../../promptengineering/quick_starts.json';
 
 const CHAT_PARAMS = {
   approach: 'rrr',
@@ -19,7 +22,7 @@ const CHAT_PARAMS = {
     semantic_ranker: true,
     semantic_captions: false,
     top: 3,
-    suggest_followup_questions: true,
+    suggest_followup_questions: false, // Doesn't work good, pasting into prompt instead
   },
 };
 
@@ -55,24 +58,22 @@ export default function Index(props) {
   useEffect(() => {
     if (chatHistory.length > 0) {
       // Removing suggestions <<...>> from the answer
-      let fullAnswer = chatData?.answer.split(/<<(.*)/s).filter(Boolean);
-      console.log(fullAnswer);
 
-      if (fullAnswer[1]) {
-        let suggestions = fullAnswer[1]
+      let answer = chatData.answer.slice(0, chatData.answer.indexOf('<<'));
+      let suggestion = chatData.answer.slice(chatData.answer.indexOf('<<'));
+
+      if (suggestion) {
+        let suggestionsData = suggestion
           .split(/<<(.*?)>>/)
+          .map((item) => item.trim())
           .filter(Boolean)
-          .filter((item) => item !== ' \n');
-        console.log(suggestions);
+          .filter((item) => ['\n', '\n\n', '.', 'Next Questions.', '1.', '2.', '3.'].indexOf(item) == -1);
 
-        setQuickSuggestionsData(
-          suggestions.map((item, index) => {
-            return {
-              key: index,
-              label: item,
-            };
-          })
-        );
+        if (suggestionsData.length > 0) {
+          setSuggestions(suggestionsData);
+        } else {
+          setSuggestions(defaultSuggestions);
+        }
       }
 
       let lastMessage = chatHistory.pop()['user'];
@@ -80,9 +81,9 @@ export default function Index(props) {
         ...chatHistory,
         {
           user: lastMessage,
-          bot: fullAnswer[0],
-          thoughts: chatData?.thoughts,
-          data_points: chatData?.data_points,
+          bot: answer,
+          thoughts: chatData.thoughts,
+          data_points: chatData.data_points,
         },
       ]);
     }
@@ -91,12 +92,15 @@ export default function Index(props) {
   const sendMessage = (message) => {
     sendMessageFormik.setFieldValue('message', '');
     sendMessageFormik.setFieldTouched('message', false);
-    chatHistory.push({ user: message, bot: '...' });
+    chatHistory.push({ user: message });
     executeChat({
       data: {
         ...{
           history: chatHistory.map((item) => {
-            return { user: item.user, bot: item.bot };
+            return {
+              user: `${item.user} ${prompts.follow_up_questions_prompt_content}`,
+              bot: item.bot,
+            };
           }),
         },
         ...CHAT_PARAMS,
@@ -114,41 +118,20 @@ export default function Index(props) {
     sendMessageFormik.handleSubmit();
   };
 
-  const [quickStartsData, setQuickStartsData] = useState([
-    {
-      key: 0,
-      label:
-        'What is included in my Northwind Health Plus plan that is not in standard?',
-    },
-    { key: 1, label: 'What can I ask?' },
-    { key: 2, label: 'What is in standard plan?' },
-  ]);
+  const [quickStarts, setQuickStarts] = useState(defaultQuickStarts);
 
-  const [quickSuggestionsData, setQuickSuggestionsData] = useState([
-    {
-      key: 0,
-      label: 'Does Northwind Health Plus offer vision and dental coverage? ',
-    },
-    {
-      key: 1,
-      label:
-        'What is the out-of-pocket limit for my Northwind Health Plus plan?',
-    },
-    { key: 2, label: 'Could you elaborate?' },
-  ]);
+  const [suggestions, setSuggestions] = useState(defaultSuggestions);
 
-  const handleQuickStartClick = (key) => {
-    sendMessageFormik.setFieldValue(
-      'message',
-      quickStartsData.filter((item) => item.key === key)[0].label
-    );
+  const handleQuickStartClick = (index) => {
+    sendMessageFormik.setFieldValue('message', quickStarts[index]).then(() => {
+      sendMessageFormik.handleSubmit();
+    });
   };
 
-  const handleQuickSuggestionClick = (key) => {
-    sendMessageFormik.setFieldValue(
-      'message',
-      quickSuggestionsData.filter((item) => item.key === key)[0].label
-    );
+  const handleSuggestionClick = (index) => {
+    sendMessageFormik.setFieldValue('message', suggestions[index]).then(() => {
+      sendMessageFormik.handleSubmit();
+    });
   };
 
   return (
@@ -158,13 +141,13 @@ export default function Index(props) {
       ) : (
         <Stack direction="column" spacing={1} sx={{ mb: 2 }}>
           <Typography variant="caption">Quick starts:</Typography>
-          {quickStartsData.map((data) => {
+          {quickStarts.map((item, index) => {
             return (
               <Chip
-                label={data.label}
-                key={data.key}
+                label={item}
+                key={index}
                 variant="outlined"
-                onClick={() => handleQuickStartClick(data.key)}
+                onClick={() => handleQuickStartClick(index)}
                 sx={{ bgcolor: '#fff' }}
               />
             );
@@ -214,13 +197,13 @@ export default function Index(props) {
       {chatHistory.length > 0 ? (
         <Stack direction="column" spacing={1} sx={{ mb: 4 }}>
           <Typography variant="caption">Quick suggestions:</Typography>
-          {quickSuggestionsData.map((data) => {
+          {suggestions.map((item, index) => {
             return (
               <Chip
-                label={data.label}
-                key={data.key}
+                label={item}
+                key={index}
                 variant="outlined"
-                onClick={() => handleQuickSuggestionClick(data.key)}
+                onClick={() => handleSuggestionClick(index)}
                 sx={{ bgcolor: '#fff' }}
               />
             );
@@ -230,6 +213,7 @@ export default function Index(props) {
             variant="filled"
             onClick={() => {
               setChatHistory([]);
+              setSuggestions(defaultSuggestions);
             }}
             color="secondary"
           />
