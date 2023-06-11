@@ -12,9 +12,10 @@ import { useFormik } from 'formik';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import ChatHistory from '../src/ChatHistory';
-import prompts from '../../promptengineering/prompts.json';
-import defaultSuggestions from '../../promptengineering/suggestions.json';
-import defaultQuickStarts from '../../promptengineering/quick_starts.json';
+import prompts from '../promptengineering/prompts.json';
+import defaultSuggestions from '../promptengineering/suggestions.json';
+import defaultQuickStarts from '../promptengineering/quick_starts.json';
+import { toast } from 'react-toastify';
 
 const CHAT_PARAMS = {
   approach: 'rrr',
@@ -98,7 +99,7 @@ export default function Index(props) {
         ...{
           history: chatHistory.map((item) => {
             return {
-              user: `${item.user} ${prompts.follow_up_questions_prompt_content}`,
+              user: `${item.user}`, // ${prompts.follow_up_questions_prompt_content}
               bot: item.bot,
             };
           }),
@@ -107,10 +108,11 @@ export default function Index(props) {
       },
     })
       .then(() => {
-        console.log('Success');
+        console.log('Success sending request');
       })
       .catch((err) => {
         console.error('Error sending request: ', err);
+        toast.error('Error sending request');
       });
   };
 

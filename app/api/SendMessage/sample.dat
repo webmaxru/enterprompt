@@ -1,0 +1,33 @@
+{
+    "subscriptionIds": [],
+    "tag": "prompt-engineering-conf-2023",
+    "notification": {
+        "title": "Tickets are available!",
+        "actions": [
+            {
+                "action": "open_url",
+                "title": "Get your ticket"
+            }
+        ],
+        "body": "Get your free ticket now",
+        "dir": "auto",
+        "icon": "https://promptengineering.rocks/images/icons/android-chrome-192x192.png",
+        "badge": "https://promptengineering.rocks/images/icons/android-chrome-192x192.png",
+        "image": "https://promptengineering.rocks/images/social.png",
+        "lang": "en-US",
+        "renotify": "true",
+        "requireInteraction": "true",
+        "tag": "tag",
+        "vibrate": [
+            300,
+            100,
+            400
+        ],
+        "data": {
+            "action": {
+                "url": "https://ti.to/prompt-engineering-conference/2023"
+            }
+        }
+    },
+    "API_KEY": ""
+}
