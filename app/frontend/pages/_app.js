@@ -57,7 +57,10 @@ const navItems = [
   },
 ];
 
-const title = 'Enterprise Prompting';
+const logo = 'EnterPrompt';
+const title = "Enterprise Prompt Engineering - Your company's very own ChatGPT";
+const description = 'ChatGPT-powered bot which only uses your enterprise data';
+const host = 'enterprise.promptengineering.rocks';
 
 ReactGA.initialize('G-Y7S54HDYHJ');
 ReactGA.send('pageview');
@@ -65,6 +68,9 @@ ReactGA.send('pageview');
 export default function MyApp(props) {
   const axios = Axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    headers: {
+      'Ocp-Apim-Subscription-Key': process.env.NEXT_PUBLIC_API_KEY,
+    },
   });
 
   configure({
@@ -89,7 +95,7 @@ export default function MyApp(props) {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        {title}
+        {logo}
       </Typography>
       <Divider />
       <List component="nav" suppressHydrationWarning={true}>
@@ -112,17 +118,11 @@ export default function MyApp(props) {
     <CacheProvider value={emotionCache}>
       <Head>
         <title>
-          {`Enterprise Prompt Engineering - Your company's very own ChatGPT`}
+          {title}
         </title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>
-          Enterprise Prompt Engineering - Your company's very own ChatGPT
-        </title>
-        <meta
-          name="description"
-          content="ChatGPT-powered bot which only uses your enterprise data"
-        />
+        <meta name="description" content={description} />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
@@ -141,49 +141,28 @@ export default function MyApp(props) {
           href="/images/icons/favicon-16x16.png"
         />
         <link rel="manifest" href="/app.webmanifest" />
-        <meta name="msapplication-TileColor" content="#b00318" />
+        <meta name="msapplication-TileColor" content="#3F7373" />
         <meta
           name="msapplication-TileImage"
           content="/images/icons/mstile-150x150.png"
         />
-        <meta
-          property="og:url"
-          content="https://enterprise.promptengineering.rocks"
-        />
+        <meta property="og:url" content={'https://' + host} />
         <meta property="og:type" content="website" />
-        <meta
-          property="og:title"
-          content="Enterprise Prompt Engineering - Your company's very own ChatGPT"
-        />
-        <meta
-          property="og:description"
-          content="ChatGPT-powered bot which only uses your enterprise data"
-        />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
         <meta
           property="og:image"
-          content="https://enterprise.promptengineering.rocks/images/social.png"
+          content={'https://' + host + '/images/social.png'}
         />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          property="twitter:domain"
-          content="enterprise.promptengineering.rocks"
-        />
-        <meta
-          property="twitter:url"
-          content="https://enterprise.promptengineering.rocks"
-        />
-        <meta
-          name="twitter:title"
-          content="Enterprise Prompt Engineering - Your company's very own ChatGPT"
-        />
-        <meta
-          name="twitter:description"
-          content="ChatGPT-powered bot which only uses your enterprise data"
-        />
+        <meta property="twitter:domain" content={host} />
+        <meta property="twitter:url" content={'https://' + host} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
         <meta
           name="twitter:image"
-          content="https://enterprise.promptengineering.rocks/images/social.png"
+          content={'https://' + host + '/images/social.png'}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -207,7 +186,7 @@ export default function MyApp(props) {
                 <MenuIcon />
               </IconButton>
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                {title}
+                {logo}
               </Typography>
               <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 {navItems.map((item) => (
@@ -246,10 +225,7 @@ export default function MyApp(props) {
           <Box
             component="main"
             sx={{
-              backgroundColor: (theme) =>
-                theme.palette.mode === 'light'
-                  ? theme.palette.grey[100]
-                  : theme.palette.grey[900],
+              backgroundColor: (theme) => theme.palette.grey[100],
               flexGrow: 1,
               height: '100vh',
               overflow: 'auto',

@@ -9,7 +9,6 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import PersonIcon from '@mui/icons-material/Person';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Avatar from '@mui/material/Avatar';
-import { green, pink } from '@mui/material/colors';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -18,14 +17,24 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 export default function ChatHistory(props) {
   const chatHistory = props.chatHistory;
 
+  const [accExpanded, setAccExpanded] = React.useState(false);
+
+  const handleAccChange = (panel) => (event, isAccExpanded) => {
+    setAccExpanded(isAccExpanded ? panel : false);
+  };
+
   return (
-    <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+    <List sx={{ width: '100%', bgcolor: 'background.paper', mb: 2 }}>
       {chatHistory.map((item, index) => {
         return (
           <div key={index}>
             <ListItem alignItems="flex-start">
               <ListItemAvatar>
-                <Avatar sx={{ bgcolor: green[500] }}>
+                <Avatar
+                  sx={(theme) => ({
+                    backgroundColor: theme.palette.primary.main,
+                  })}
+                >
                   <PersonIcon />
                 </Avatar>
               </ListItemAvatar>
@@ -40,6 +49,7 @@ export default function ChatHistory(props) {
                         minHeight: '44px',
                         display: 'flex',
                         alignItems: 'center',
+                        backgroundColor: (theme) => theme.palette.grey[100],
                       }}
                     >
                       <Typography
@@ -84,7 +94,10 @@ export default function ChatHistory(props) {
                     </Paper>
 
                     {item['thoughts'] ? (
-                      <Accordion>
+                      <Accordion
+                        expanded={accExpanded === 'panel1'}
+                        onChange={handleAccChange('panel1')}
+                      >
                         <AccordionSummary
                           expandIcon={<ExpandMoreIcon />}
                           aria-controls={'panel' + index + '-content'}
@@ -105,11 +118,44 @@ export default function ChatHistory(props) {
                         </AccordionDetails>
                       </Accordion>
                     ) : null}
+                    {item['data_points'] ? (
+                      <Accordion
+                        expanded={accExpanded === 'panel2'}
+                        onChange={handleAccChange('panel2')}
+                      >
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls={'panel' + index + '-content'}
+                          id={'panel' + index + '-header'}
+                        >
+                          <Typography variant="caption">
+                            Data sources
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          {item['data_points'].map((item, index) => {
+                            return (
+                              <Typography
+                                variant="body2"
+                                gutterBottom
+                                key={index}
+                              >
+                                {item}
+                              </Typography>
+                            );
+                          })}
+                        </AccordionDetails>
+                      </Accordion>
+                    ) : null}
                   </React.Fragment>
                 }
               />
               <ListItemAvatar sx={{ paddingLeft: '14px' }}>
-                <Avatar sx={{ bgcolor: pink[500] }}>
+                <Avatar
+                  sx={(theme) => ({
+                    backgroundColor: theme.palette.secondary.main,
+                  })}
+                >
                   <SmartToyIcon />
                 </Avatar>
               </ListItemAvatar>

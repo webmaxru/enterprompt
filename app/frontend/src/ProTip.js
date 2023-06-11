@@ -13,7 +13,7 @@ function LightBulbIcon(props) {
 
 export default function ProTip() {
   return (
-    <Typography sx={{ mt: 6, mb: 3 }} color="text.secondary">
+    <Typography sx={{ mt: 4, mb: 4 }} color="text.secondary">
       <LightBulbIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
       Hint: Check "Prompt details" to check the generated query, and resulting prompt (metaprompt + query results injected)
     </Typography>

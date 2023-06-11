@@ -19,7 +19,7 @@ const CHAT_PARAMS = {
     semantic_ranker: true,
     semantic_captions: false,
     top: 3,
-    suggest_followup_questions: false,
+    suggest_followup_questions: true,
   },
 };
 
@@ -54,13 +54,35 @@ export default function Index(props) {
 
   useEffect(() => {
     if (chatHistory.length > 0) {
+      // Removing suggestions <<...>> from the answer
+      let fullAnswer = chatData?.answer.split(/<<(.*)/s).filter(Boolean);
+      console.log(fullAnswer);
+
+      if (fullAnswer[1]) {
+        let suggestions = fullAnswer[1]
+          .split(/<<(.*?)>>/)
+          .filter(Boolean)
+          .filter((item) => item !== ' \n');
+        console.log(suggestions);
+
+        setQuickSuggestionsData(
+          suggestions.map((item, index) => {
+            return {
+              key: index,
+              label: item,
+            };
+          })
+        );
+      }
+
       let lastMessage = chatHistory.pop()['user'];
       setChatHistory([
         ...chatHistory,
         {
           user: lastMessage,
-          bot: chatData?.answer,
+          bot: fullAnswer[0],
           thoughts: chatData?.thoughts,
+          data_points: chatData?.data_points,
         },
       ]);
     }
@@ -69,11 +91,13 @@ export default function Index(props) {
   const sendMessage = (message) => {
     sendMessageFormik.setFieldValue('message', '');
     sendMessageFormik.setFieldTouched('message', false);
-    chatHistory.push({ user: message, bot: '...', thoughts: '' });
+    chatHistory.push({ user: message, bot: '...' });
     executeChat({
       data: {
         ...{
-          history: chatHistory,
+          history: chatHistory.map((item) => {
+            return { user: item.user, bot: item.bot };
+          }),
         },
         ...CHAT_PARAMS,
       },
@@ -103,10 +127,14 @@ export default function Index(props) {
   const [quickSuggestionsData, setQuickSuggestionsData] = useState([
     {
       key: 0,
-      label: 'What is about eye exams?',
+      label: 'Does Northwind Health Plus offer vision and dental coverage? ',
     },
-    { key: 1, label: 'What is about dental check?' },
-    { key: 2, label: 'More details?' },
+    {
+      key: 1,
+      label:
+        'What is the out-of-pocket limit for my Northwind Health Plus plan?',
+    },
+    { key: 2, label: 'Could you elaborate?' },
   ]);
 
   const handleQuickStartClick = (key) => {
@@ -124,11 +152,11 @@ export default function Index(props) {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth="sm" sx={{ mt: 2, mb: 4 }}>
       {chatHistory.length > 0 ? (
         <ChatHistory chatHistory={chatHistory} />
       ) : (
-        <Stack direction="column" spacing={1} sx={{ mb: 1 }}>
+        <Stack direction="column" spacing={1} sx={{ mb: 2 }}>
           <Typography variant="caption">Quick starts:</Typography>
           {quickStartsData.map((data) => {
             return (
@@ -137,6 +165,7 @@ export default function Index(props) {
                 key={data.key}
                 variant="outlined"
                 onClick={() => handleQuickStartClick(data.key)}
+                sx={{ bgcolor: '#fff' }}
               />
             );
           })}
@@ -147,16 +176,16 @@ export default function Index(props) {
         component="div"
         sx={{
           display: 'flex',
-          mb: 1,
+          mb: 2,
         }}
       >
         <TextField
           id="message"
           label="Your message"
           multiline
-          rows={4}
+          rows={3}
           placeholder="Type in your question here"
-          variant="filled"
+          variant="outlined"
           fullWidth
           value={sendMessageFormik.values.message}
           onChange={sendMessageFormik.handleChange}
@@ -168,18 +197,22 @@ export default function Index(props) {
             sendMessageFormik.touched.message &&
             sendMessageFormik.errors.message
           }
+          sx={{
+            backgroundColor: '#fff',
+          }}
         />
         <Button
           variant="contained"
           type="button"
           onClick={() => handleSendMessage()}
+          color="primary"
         >
           Send
         </Button>
       </Box>
 
       {chatHistory.length > 0 ? (
-        <Stack direction="column" spacing={1} sx={{ mb: 1 }}>
+        <Stack direction="column" spacing={1} sx={{ mb: 4 }}>
           <Typography variant="caption">Quick suggestions:</Typography>
           {quickSuggestionsData.map((data) => {
             return (
@@ -188,9 +221,18 @@ export default function Index(props) {
                 key={data.key}
                 variant="outlined"
                 onClick={() => handleQuickSuggestionClick(data.key)}
+                sx={{ bgcolor: '#fff' }}
               />
             );
           })}
+          <Chip
+            label="Start over"
+            variant="filled"
+            onClick={() => {
+              setChatHistory([]);
+            }}
+            color="secondary"
+          />
         </Stack>
       ) : null}
 
