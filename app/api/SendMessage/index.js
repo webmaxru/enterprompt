@@ -56,6 +56,15 @@ function nonewlines(s) {
 module.exports = async function (context, req) {
   let operationIdOverride = utils.getOperationIdOverride(context);
 
+  if (req.headers['api_key'] !== process.env.API_KEY) {
+    client.trackException({
+      exception: new Error('Unauthorized!'),
+      tagOverrides: operationIdOverride,
+    });
+    context.log.error('Unauthorized!');
+    context.res = { status: 401, body: 'Wrong API key!' };
+  }
+
   if (
     !req.body ||
     !req.body.approach ||
@@ -71,7 +80,6 @@ module.exports = async function (context, req) {
     });
 
     context.res = { status: 404, body: 'No required parameter!' };
-    context.done();
   }
 
   const use_semantic_captions = req.body.overrides['semantic_captions']
@@ -102,7 +110,7 @@ module.exports = async function (context, req) {
     question: req.body.history.slice(-1)[0]['user'],
   });
 
-  console.log('Prompt for generating search query', prompt);
+  context.log('Prompt for generating search query', prompt);
 
   const result = await openAIClient.getCompletions(
     process.env['AZURE_OPENAI_DEPLOYMENT'],
@@ -117,7 +125,7 @@ module.exports = async function (context, req) {
 
   let q = result.choices[0].text;
 
-  console.log('Resulting search query', q);
+  context.log('Resulting search query', q);
 
   // STEP 2: Retrieve relevant documents from the search index with the GPT optimized query
 
@@ -145,7 +153,7 @@ module.exports = async function (context, req) {
     output.push(result);
   }
 
-  console.log('Search results', output);
+  context.log('Search results', output);
 
   let results;
 
