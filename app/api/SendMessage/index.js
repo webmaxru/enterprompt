@@ -62,7 +62,8 @@ module.exports = async function (context, req) {
       tagOverrides: operationIdOverride,
     });
     context.log.error('Unauthorized!');
-    context.res = { status: 401, body: 'Wrong API key!' };
+    context.res = { status: 401, body: 'Unauthorized!' };
+    return;
   }
 
   if (
@@ -79,7 +80,9 @@ module.exports = async function (context, req) {
       tagOverrides: operationIdOverride,
     });
 
+    context.log.error('No required parameter!');
     context.res = { status: 404, body: 'No required parameter!' };
+    return;
   }
 
   const use_semantic_captions = req.body.overrides['semantic_captions']
