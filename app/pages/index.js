@@ -12,7 +12,6 @@ import { useFormik } from 'formik';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import ChatHistory from '../src/ChatHistory';
-import prompts from '../promptengineering/prompts.json';
 import defaultSuggestions from '../promptengineering/suggestions.json';
 import defaultQuickStarts from '../promptengineering/quick_starts.json';
 import { toast } from 'react-toastify';

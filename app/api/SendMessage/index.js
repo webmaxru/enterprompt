@@ -4,7 +4,7 @@ appInsights.setup();
 const client = appInsights.defaultClient;
 const { SearchClient, AzureKeyCredential } = require('@azure/search-documents');
 const { OpenAIClient } = require('@azure/openai');
-const prompts = require('../../promptengineering/prompts.json');
+const prompts = require('../promptengineering/prompts.json');
 const { setLogLevel } = require('@azure/logger');
 
 setLogLevel('info');
