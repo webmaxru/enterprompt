@@ -65,7 +65,7 @@ const title = "Enterprise Prompt Engineering - Your company's very own ChatGPT";
 const description = 'ChatGPT-powered bot which only uses your enterprise data';
 const host = 'enterprise.promptengineering.rocks';
 
-ReactGA.initialize('G-Y7S54HDYHJ');
+ReactGA.initialize('G-VG7HQGD04R');
 ReactGA.send('pageview');
 
 export default function MyApp(props) {
