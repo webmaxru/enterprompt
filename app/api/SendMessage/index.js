@@ -30,7 +30,7 @@ function get_chat_history_as_text(
     i--
   ) {
     let h = history[i];
-    history_text +=
+    history_text =
       '<|im_start|>user' +
       '\n' +
       h['user'] +
@@ -40,7 +40,8 @@ function get_chat_history_as_text(
       '<|im_start|>assistant' +
       '\n' +
       (h['bot'] ? h['bot'] + '<|im_end|>' : '') +
-      '\n';
+      '\n' +
+      history_text;
     if (history_text.length > approx_max_tokens * 4) {
       break;
     }
@@ -116,7 +117,7 @@ module.exports = async function (context, req) {
   context.log('Prompt for generating search query', prompt);
 
   const result = await openAIClient.getCompletions(
-    process.env['AZURE_OPENAI_DEPLOYMENT'],
+    process.env['AZURE_OPENAI_GPT_DEPLOYMENT'],
     prompt,
     {
       maxTokens: 32,
@@ -127,6 +128,7 @@ module.exports = async function (context, req) {
   );
 
   let q = result.choices[0].text;
+  let searchPromptUsage = result.usage
 
   context.log('Resulting search query', q);
 
@@ -186,6 +188,8 @@ module.exports = async function (context, req) {
     ? prompts.follow_up_questions_prompt_content
     : '';
 
+  context.log('Follow up questions prompt', follow_up_questions_prompt);
+
   // Allow client to replace the entire prompt, or to inject into the exiting prompt using >>>
 
   let prompt_override = req.body.overrides['prompt_template'];
@@ -212,10 +216,12 @@ module.exports = async function (context, req) {
     });
   }
 
+  context.log('Final prompt', prompt);
+
   // STEP 3: Generate a contextual and content specific answer using the search results and chat history
 
   const completion = await openAIClient.getCompletions(
-    process.env['AZURE_OPENAI_DEPLOYMENT'],
+    process.env['AZURE_OPENAI_CHAT_DEPLOYMENT'],
     prompt,
     {
       maxTokens: 1024,
@@ -229,10 +235,12 @@ module.exports = async function (context, req) {
     body: {
       data_points: results,
       answer: completion.choices[0].text,
-      thoughts: `Searched for: <br>${q}<br><br>Prompt:<br>${prompt.replace(
+      thoughts: `<strong>Database search query:</strong><br>${q}<br><br><strong>Resulting prompt:</strong><br>${prompt.replace(
         /(?:\r\n|\r|\n)/g,
         '<br>'
       )}`,
+      searchPromptUsage: searchPromptUsage,
+      chatPromptUsage: completion.usage
     },
   };
 };

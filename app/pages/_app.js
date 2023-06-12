@@ -30,6 +30,9 @@ import { SvgIcon } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 import ReactGA from 'react-ga4';
 
@@ -69,7 +72,7 @@ export default function MyApp(props) {
   const axios = Axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
     headers: {
-      'API_KEY': process.env.NEXT_PUBLIC_API_KEY, // Ocp-Apim-Subscription-Key
+      API_KEY: process.env.NEXT_PUBLIC_API_KEY, // Ocp-Apim-Subscription-Key
     },
   });
 
@@ -87,6 +90,11 @@ export default function MyApp(props) {
 
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [devMode, setDevMode] = React.useState(true);
+
+  const devModeToggle = () => {
+    setDevMode((prevState) => !prevState);
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -117,9 +125,7 @@ export default function MyApp(props) {
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <title>
-          {title}
-        </title>
+        <title>{title}</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content={description} />
@@ -181,24 +187,27 @@ export default function MyApp(props) {
                 aria-label="open drawer"
                 edge="start"
                 onClick={handleDrawerToggle}
-                sx={{ mr: 2, display: { sm: 'none' } }}
+                sx={{ mr: 2, display: { sm: 'block' } }}
               >
                 <MenuIcon />
               </IconButton>
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 {logo}
               </Typography>
-              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                {navItems.map((item) => (
-                  <Button
-                    key={item.link}
-                    sx={{ color: '#fff' }}
-                    component={NextLink}
-                    href={item.link}
-                  >
-                    {item.caption}
-                  </Button>
-                ))}
+              <Box sx={{ display: { sm: 'block' } }}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={devMode}
+                        onChange={devModeToggle}
+                        name="devmode"
+                        color="warning"
+                      />
+                    }
+                    label="Developer"
+                  />
+                </FormGroup>
               </Box>
             </Toolbar>
           </AppBar>
@@ -212,7 +221,7 @@ export default function MyApp(props) {
                 keepMounted: true, // Better open performance on mobile.
               }}
               sx={{
-                display: { xs: 'block', sm: 'none' },
+                display: { xs: 'block', sm: 'block' },
                 '& .MuiDrawer-paper': {
                   boxSizing: 'border-box',
                   width: drawerWidth,
@@ -235,7 +244,7 @@ export default function MyApp(props) {
 
             {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
             <CssBaseline />
-            <Component {...pageProps} />
+            <Component {...pageProps} devMode={devMode} />
             <Copyright sx={{ pt: 4 }} />
           </Box>
         </Box>

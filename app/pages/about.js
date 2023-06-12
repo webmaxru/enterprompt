@@ -12,7 +12,7 @@ export default function About() {
         <Typography variant="h4" component="h1" gutterBottom>
           How does it work?
         </Typography>
-        This is an alternative UI for the{' '}
+        This is an alternative app (frontend and backend) for the{' '}
         <Link href="https://github.com/Azure-Samples/azure-search-openai-demo/">
           ChatGPT + Enterprise data with Azure OpenAI and Cognitive Search
         </Link>{' '}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -15,6 +15,9 @@ import ChatHistory from '../src/ChatHistory';
 import defaultSuggestions from '../promptengineering/suggestions.json';
 import defaultQuickStarts from '../promptengineering/quick_starts.json';
 import { toast } from 'react-toastify';
+import prompts from '../api/promptengineering/prompts.json';
+import { decodeGenerator, encode } from 'gpt-tokenizer';
+import Paper from '@mui/material/Paper';
 
 const CHAT_PARAMS = {
   approach: 'rrr',
@@ -22,12 +25,15 @@ const CHAT_PARAMS = {
     semantic_ranker: true,
     semantic_captions: false,
     top: 3,
-    suggest_followup_questions: false, // Doesn't work good, pasting into prompt instead
+    suggest_followup_questions: false,
   },
 };
 
 export default function Index(props) {
   const [chatHistory, setChatHistory] = React.useState([]);
+  const [tokenizedMessage, setTokenizedMessage] = React.useState([]);
+
+  const devMode = props.devMode;
 
   const sendMessageValidationSchema = yup.object({
     message: yup
@@ -42,6 +48,7 @@ export default function Index(props) {
     },
     validationSchema: sendMessageValidationSchema,
     onSubmit: (values, { setSubmitting }) => {
+      setTokenizedMessage([]);
       sendMessage(values.message);
       setSubmitting(false);
     },
@@ -56,34 +63,59 @@ export default function Index(props) {
   });
 
   useEffect(() => {
+    handleTokenizeMessage(sendMessageFormik.values.message);
+  }, [devMode]);
+
+  useEffect(() => {
     if (chatHistory.length > 0) {
-      // Removing suggestions <<...>> from the answer
+      let answer;
+      let suggestions = [];
 
-      let answer = chatData.answer.slice(0, chatData.answer.indexOf('<<'));
-      let suggestion = chatData.answer.slice(chatData.answer.indexOf('<<'));
+      if (chatData.answer.includes('<<')) {
+        // Extracting suggestions <<...>> from the answer
+        answer = chatData.answer.slice(0, chatData.answer.indexOf('<<'));
+        let suggestion = chatData.answer.slice(chatData.answer.indexOf('<<'));
 
-      if (suggestion) {
-        let suggestionsData = suggestion
+        suggestions = suggestion
           .split(/<<(.*?)>>/)
           .map((item) => item.trim())
           .filter(Boolean)
-          .filter((item) => ['\n', '\n\n', '.', 'Next Questions.', '1.', '2.', '3.'].indexOf(item) == -1);
+          .filter(
+            (item) =>
+              ['\n', '\n\n', '.', 'Next Questions.', '1.', '2.', '3.'].indexOf(
+                item
+              ) == -1
+          );
 
-        if (suggestionsData.length > 0) {
-          setSuggestions(suggestionsData);
+        if (suggestions.length > 0) {
+          setSuggestions(suggestions);
         } else {
           setSuggestions(defaultSuggestions);
         }
+      } else {
+        answer = chatData.answer;
       }
+
+      // Extracting citations [...] from the answer
+      let citations = [];
+      answer.replace(/\[(.*?)\]/g, (match, pattern) => {
+        citations.push(pattern);
+      });
+
+      answer = answer.replace(/ *\[[^\]]*]/g, '');
 
       let lastMessage = chatHistory.pop()['user'];
       setChatHistory([
         ...chatHistory,
         {
           user: lastMessage,
+          chatPromptUsage: chatData.chatPromptUsage,
+          searchPromptUsage: chatData.searchPromptUsage,
           bot: answer,
           thoughts: chatData.thoughts,
           data_points: chatData.data_points,
+          citations: citations,
+          suggestions: suggestions,
         },
       ]);
     }
@@ -98,7 +130,7 @@ export default function Index(props) {
         ...{
           history: chatHistory.map((item) => {
             return {
-              user: `${item.user}`, // ${prompts.follow_up_questions_prompt_content}
+              user: `${item.user} }`, // ${prompts.follow_up_questions_prompt_content
               bot: item.bot,
             };
           }),
@@ -119,6 +151,10 @@ export default function Index(props) {
     sendMessageFormik.handleSubmit();
   };
 
+  const handleTokenizeMessage = (message) => {
+    setTokenizedMessage(encode(message));
+  };
+
   const [quickStarts, setQuickStarts] = useState(defaultQuickStarts);
 
   const [suggestions, setSuggestions] = useState(defaultSuggestions);
@@ -135,10 +171,73 @@ export default function Index(props) {
     });
   };
 
+  const TokenizedText = ({ tokens }) => (
+    <div
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        width: '100%',
+        height: '50px',
+        overflowY: 'auto',
+        padding: '8px',
+        lineHeight: '1.5',
+        alignContent: 'flex-start',
+        mb: 1,
+      }}
+    >
+      {tokens.map((token, index) => (
+        <span
+          key={index}
+          style={{
+            backgroundColor: pastelColors[index % pastelColors.length],
+            padding: '0 0px',
+            borderRadius: '3px',
+            marginRight: '0px',
+            marginBottom: '4px',
+            display: 'inline-block',
+            height: '1.5em',
+          }}
+        >
+          {
+            <pre
+              style={{
+                margin: '0px',
+              }}
+            >
+              {String(token)
+                .replaceAll(' ', '\u00A0')
+                .replaceAll('\n', '<newline>')}
+            </pre>
+          }
+        </span>
+      ))}
+    </div>
+  );
+
+  const pastelColors = [
+    'rgba(107,64,216,.3)',
+    'rgba(104,222,122,.4)',
+    'rgba(244,172,54,.4)',
+    'rgba(239,65,70,.4)',
+    'rgba(39,181,234,.4)',
+  ];
+
+  const decodedMessage = useMemo(() => {
+    const tokens = [];
+    for (const token of decodeGenerator(tokenizedMessage)) {
+      tokens.push(token);
+    }
+    return tokens;
+  }, [tokenizedMessage]);
+
   return (
     <Container maxWidth="sm" sx={{ mt: 2, mb: 4 }}>
       {chatHistory.length > 0 ? (
-        <ChatHistory chatHistory={chatHistory} />
+        <ChatHistory
+          chatHistory={chatHistory}
+          chatError={chatError}
+          devMode={devMode}
+        />
       ) : (
         <Stack direction="column" spacing={1} sx={{ mb: 2 }}>
           <Typography variant="caption">Quick starts:</Typography>
@@ -172,7 +271,10 @@ export default function Index(props) {
           variant="outlined"
           fullWidth
           value={sendMessageFormik.values.message}
-          onChange={sendMessageFormik.handleChange}
+          onChange={(e) => {
+            if (devMode) handleTokenizeMessage(e.target.value);
+            sendMessageFormik.handleChange(e);
+          }}
           error={
             sendMessageFormik.touched.message &&
             Boolean(sendMessageFormik.errors.message)
@@ -194,6 +296,21 @@ export default function Index(props) {
           Send
         </Button>
       </Box>
+
+      {devMode ? (
+        <Paper sx={{ mb: 2, paddingX: 2, paddingY: 1 }}>
+          <Typography component="div" variant="body1">
+            Tokenized message
+          </Typography>
+
+          <TokenizedText tokens={decodedMessage} />
+
+          <Typography component="div" variant="caption">
+            {tokenizedMessage.length} tokens,{' '}
+            {sendMessageFormik.values.message.length} characters
+          </Typography>
+        </Paper>
+      ) : null}
 
       {chatHistory.length > 0 ? (
         <Stack direction="column" spacing={1} sx={{ mb: 4 }}>
