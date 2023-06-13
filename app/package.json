@@ -23,6 +23,7 @@
     "next": "latest",
     "prop-types": "latest",
     "react": "latest",
+    "react-device-detect": "^2.2.3",
     "react-dom": "latest",
     "react-ga4": "^2.1.0",
     "react-toastify": "^9.1.3",
