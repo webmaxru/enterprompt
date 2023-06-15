@@ -117,7 +117,11 @@ export default function ChatHistory(props) {
                             variant="body2"
                             color="text.primary"
                           >
-                            {item['bot']}
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: item['bot'],
+                              }}
+                            />
                           </Typography>
                           {item['citations'].length > 0 ? (
                             <Stack

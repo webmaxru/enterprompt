@@ -286,6 +286,11 @@ export default function Index(props) {
           sx={{
             backgroundColor: '#fff',
           }}
+          onKeyUp ={(e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+              sendMessageFormik.handleSubmit();
+            }
+          }}
         />
         <Button
           variant="contained"
