@@ -72,7 +72,9 @@ export default function MyApp(props) {
   const axios = Axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
     headers: {
-      API_KEY: process.env.NEXT_PUBLIC_API_KEY, // Ocp-Apim-Subscription-Key
+      API_KEY: process.env.NEXT_PUBLIC_API_KEY,
+      'X-RapidAPI-Host': process.env.NEXT_PUBLIC_RAPID_HOST, // For locally accessing external API option
+      'X-RapidAPI-Key': process.env.NEXT_PUBLIC_RAPID_KEY,
     },
   });
 
