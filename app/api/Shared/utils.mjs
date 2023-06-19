@@ -1,4 +1,4 @@
-const getClientPrincipal = (req) => {
+export function getClientPrincipal(req) {
   try {
     const header = req.headers['x-ms-client-principal'];
     const encoded = Buffer.from(header, 'base64');
@@ -7,16 +7,12 @@ const getClientPrincipal = (req) => {
   } catch (error) {
     return {};
   }
-};
+}
 
-const getOperationIdOverride = (context) => {
+export function getOperationIdOverride(context) {
   return {
     'ai.operation.id': context.traceContext.traceparent,
   };
-};
+}
 
-
-module.exports = {
-  getClientPrincipal,
-  getOperationIdOverride,
-};
+export default { getClientPrincipal, getOperationIdOverride };

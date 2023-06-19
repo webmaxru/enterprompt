@@ -8,7 +8,7 @@
       "methods": [
         "post"
       ],
-      "route": "chat"
+      "route": "praise"
     },
     {
       "type": "http",
@@ -16,5 +16,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "./index.js"
+  "scriptFile": "./index.mjs"
 }
