@@ -24,7 +24,7 @@ import { configure } from 'axios-hooks';
 import Axios from 'axios';
 import Copyright from '../src/Copyright';
 import NextLink from 'next/link';
-import ForumIcon from '@mui/icons-material/Forum';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import SchoolIcon from '@mui/icons-material/School';
 import { SvgIcon } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
@@ -34,8 +34,6 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
-import ReactGA from 'react-ga4';
-
 import ServiceWorkerRegistration from '../src/ServiceWorkerRegistration';
 
 // Client-side cache, shared for the whole session of the user in the browser.
@@ -44,9 +42,9 @@ const clientSideEmotionCache = createEmotionCache();
 const drawerWidth = 240;
 const navItems = [
   {
-    caption: 'Chat',
+    caption: 'Praise',
     link: '/',
-    icon: <ForumIcon />,
+    icon: <VolunteerActivismIcon />,
   },
   {
     caption: 'About',
@@ -60,21 +58,17 @@ const navItems = [
   },
 ];
 
-const logo = 'EnterPrompt';
-const title = "Enterprise Prompt Engineering - Your company's very own ChatGPT";
-const description = 'ChatGPT-powered bot which only uses your enterprise data';
-const host = 'enterprise.promptengineering.rocks';
-
-ReactGA.initialize('G-VG7HQGD04R');
-ReactGA.send('pageview');
+const logo = 'PraiseGPT';
+const title = 'PraiseGPT - Praise your colleagues on a large scale!';
+const description =
+  'ChatGPT-powered bot whose only goal is to help you write positive feedback to your colleagues';
+const host = 'praise.promptengineering.rocks';
 
 export default function MyApp(props) {
   const axios = Axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
     headers: {
       API_KEY: process.env.NEXT_PUBLIC_API_KEY,
-      'X-RapidAPI-Host': process.env.NEXT_PUBLIC_RAPID_HOST, // For locally accessing external API option
-      'X-RapidAPI-Key': process.env.NEXT_PUBLIC_RAPID_KEY,
     },
   });
 
@@ -92,7 +86,7 @@ export default function MyApp(props) {
 
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [devMode, setDevMode] = React.useState(true);
+  const [devMode, setDevMode] = React.useState(false);
 
   const devModeToggle = () => {
     setDevMode((prevState) => !prevState);
@@ -149,7 +143,7 @@ export default function MyApp(props) {
           href="/images/icons/favicon-16x16.png"
         />
         <link rel="manifest" href="/app.webmanifest" />
-        <meta name="msapplication-TileColor" content="#3F7373" />
+        <meta name="msapplication-TileColor" content="#fd7344" />
         <meta
           name="msapplication-TileImage"
           content="/images/icons/mstile-150x150.png"
@@ -204,7 +198,7 @@ export default function MyApp(props) {
                         checked={devMode}
                         onChange={devModeToggle}
                         name="devmode"
-                        color="warning"
+                        color="secondary"
                       />
                     }
                     label="Developer"

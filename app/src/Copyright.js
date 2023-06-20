@@ -13,7 +13,7 @@ export default function Copyright() {
           Maxim Salnikov
         </MuiLink>{' '}
         |&nbsp;
-        <MuiLink color="inherit" href="https://github.com/webmaxru/enterprompt">
+        <MuiLink color="inherit" href="https://github.com/webmaxru/enterprompt/tree/praise">
           GitHub
         </MuiLink>
       </Typography>

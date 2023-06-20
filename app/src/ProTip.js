@@ -15,7 +15,7 @@ export default function ProTip() {
   return (
     <Typography sx={{ mt: 4, mb: 4 }} color="text.secondary" variant="body2">
       <LightBulbIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-      Hint: In Developer mode, expand "Prompt details" to check the generated query, and resulting prompt (metaprompt + query results injected)
+      Hint: In Developer mode, you can check some "under the hood" information.
     </Typography>
   );
 }

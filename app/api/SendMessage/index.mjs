@@ -14,6 +14,11 @@ import tokenizer from 'gpt-tokenizer';
 
 setLogLevel('info');
 
+const MAX_TOTAL_TOKENS = 3500;
+const MAX_COMPLETION_TOKENS = 500;
+const MAX_PROMPT_TOKENS = MAX_TOTAL_TOKENS - MAX_COMPLETION_TOKENS;
+const MODEL_NAME = 'gpt-3.5-turbo-0301';
+
 function stringTemplateParser(expression, valueObj) {
   const templateMatcher = /{{\s?([^{}\s]*)\s?}}/g;
   let text = expression.replace(templateMatcher, (substring, value, index) => {
@@ -23,11 +28,11 @@ function stringTemplateParser(expression, valueObj) {
   return text;
 }
 
-const MAX_TOTAL_TOKENS = 3500;
-const MAX_COMPLETION_TOKENS = 500;
-const MAX_PROMPT_TOKENS = MAX_TOTAL_TOKENS - MAX_COMPLETION_TOKENS;
-
 function limitHistory(history) {
+  if (tokenizer.encodeChat(history, MODEL_NAME).length <= MAX_PROMPT_TOKENS) {
+    return history;
+  }
+
   let alwaysHave = 3; // Always include the system message and first interaction
   let limitedHistory = history.slice(0, alwaysHave);
 
@@ -35,7 +40,7 @@ function limitHistory(history) {
   let counter = 0;
 
   while (
-    tokenizer.encodeChat(limitedHistory, 'gpt-3.5-turbo-0301').length <
+    tokenizer.encodeChat(limitedHistory, MODEL_NAME).length <
       MAX_PROMPT_TOKENS &&
     index > alwaysHave - 1
   ) {
