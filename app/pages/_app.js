@@ -33,8 +33,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-
 import ServiceWorkerRegistration from '../src/ServiceWorkerRegistration';
+import AzureAppInsights from "../src/AzureAppInsights";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -174,78 +174,84 @@ export default function MyApp(props) {
         />
       </Head>
       <ThemeProvider theme={theme}>
-        <Box sx={{ display: 'flex' }}>
-          <CssBaseline />
-          <AppBar component="nav">
-            <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleDrawerToggle}
-                sx={{ mr: 2, display: { sm: 'block' } }}
+        <AzureAppInsights>
+          <Box sx={{ display: 'flex' }}>
+            <CssBaseline />
+            <AppBar component="nav">
+              <Toolbar>
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  edge="start"
+                  onClick={handleDrawerToggle}
+                  sx={{ mr: 2, display: { sm: 'block' } }}
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{ flexGrow: 1, alignItems: 'center' }}
+                >
+                  <VolunteerActivismIcon sx={{ fontSize: 20 }} /> {logo}
+                </Typography>
+                <Box sx={{ display: { sm: 'block' } }}>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={devMode}
+                          onChange={devModeToggle}
+                          name="devmode"
+                          color="secondary"
+                        />
+                      }
+                      label="Developer"
+                    />
+                  </FormGroup>
+                </Box>
+              </Toolbar>
+            </AppBar>
+            <Box component="nav">
+              <Drawer
+                container={container}
+                variant="temporary"
+                open={mobileOpen}
+                onClose={handleDrawerToggle}
+                ModalProps={{
+                  keepMounted: true, // Better open performance on mobile.
+                }}
+                sx={{
+                  display: { xs: 'block', sm: 'block' },
+                  '& .MuiDrawer-paper': {
+                    boxSizing: 'border-box',
+                    width: drawerWidth,
+                  },
+                }}
               >
-                <MenuIcon />
-              </IconButton>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                {logo}
-              </Typography>
-              <Box sx={{ display: { sm: 'block' } }}>
-                <FormGroup>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={devMode}
-                        onChange={devModeToggle}
-                        name="devmode"
-                        color="secondary"
-                      />
-                    }
-                    label="Developer"
-                  />
-                </FormGroup>
-              </Box>
-            </Toolbar>
-          </AppBar>
-          <Box component="nav">
-            <Drawer
-              container={container}
-              variant="temporary"
-              open={mobileOpen}
-              onClose={handleDrawerToggle}
-              ModalProps={{
-                keepMounted: true, // Better open performance on mobile.
-              }}
+                {drawer}
+              </Drawer>
+            </Box>
+            <Box
+              component="main"
               sx={{
-                display: { xs: 'block', sm: 'block' },
-                '& .MuiDrawer-paper': {
-                  boxSizing: 'border-box',
-                  width: drawerWidth,
-                },
+                backgroundColor: (theme) => theme.palette.grey[100],
+                flexGrow: 1,
+                height: '100vh',
+                overflow: 'auto',
               }}
             >
-              {drawer}
-            </Drawer>
-          </Box>
-          <Box
-            component="main"
-            sx={{
-              backgroundColor: (theme) => theme.palette.grey[100],
-              flexGrow: 1,
-              height: '100vh',
-              overflow: 'auto',
-            }}
-          >
-            <Toolbar />
+              <Toolbar />
 
-            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-            <CssBaseline />
-            <Component {...pageProps} devMode={devMode} />
-            <Copyright sx={{ pt: 4 }} />
+              {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+              <CssBaseline />
+              <Component {...pageProps} devMode={devMode} />
+              <Copyright sx={{ pt: 4 }} />
+            </Box>
           </Box>
-        </Box>
-        <ToastContainer position={toast.POSITION.BOTTOM_RIGHT} />
-        <ServiceWorkerRegistration />
+          <ToastContainer position={toast.POSITION.BOTTOM_RIGHT} />
+          <ServiceWorkerRegistration />
+        </AzureAppInsights>
       </ThemeProvider>
     </CacheProvider>
   );

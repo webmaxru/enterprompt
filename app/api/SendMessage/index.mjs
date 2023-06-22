@@ -76,9 +76,9 @@ async function sendMessage(context, req) {
   if (
     !req.body ||
     !(
-      req.body.history &&
-      Array.isArray(req.body.history) &&
-      req.body.history.length
+      req.body.messages &&
+      Array.isArray(req.body.messages) &&
+      req.body.messages.length
     )
   ) {
     client.trackException({
@@ -91,22 +91,23 @@ async function sendMessage(context, req) {
     return;
   }
 
-  let history = req.body.history;
+  let messages = req.body.messages;
 
   const openAIClient = new OpenAIClient(
     process.env['AZURE_OPENAI_ENDPOINT'],
     new AzureKeyCredential(process.env['AZURE_OPENAI_KEY'])
   );
 
-  history.unshift({ role: 'system', content: prompts.system });
+  // Replacing with more strict system message
+  messages.splice(0, 1, { role: 'system', content: prompts.system });
 
-  history = limitHistory(history);
+  messages = limitHistory(messages);
 
-  //context.log(`History: ${history.map((m) => m.content).join('\n')}`);
+  context.log(messages);
 
   const chatCompletions = await openAIClient.getChatCompletions(
     process.env['AZURE_OPENAI_CHAT_DEPLOYMENT'],
-    history,
+    messages,
     {
       maxTokens: MAX_COMPLETION_TOKENS,
       temperature: req.body.overrides?.['temperature'] || 0.7,
@@ -118,8 +119,7 @@ async function sendMessage(context, req) {
 
   context.res = {
     body: {
-      assistant: chatCompletions.choices[0].message.content,
-      history: history,
+      answer: chatCompletions.choices[0].message.content,
       usage: chatCompletions.usage,
     },
   };

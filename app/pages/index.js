@@ -7,40 +7,39 @@ import Link from '../src/Link';
 import useAxios from 'axios-hooks';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import * as yup from 'yup';
 import { useFormik } from 'formik';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import ChatHistory from '../src/ChatHistory';
 import defaultSuggestions from '../promptengineering/suggestions.json';
-import defaultQuickStarts from '../promptengineering/quick_starts.json';
 import { toast } from 'react-toastify';
-import prompts from '../api/promptengineering/prompts.json';
 import { decodeGenerator, encode } from 'gpt-tokenizer';
 import Paper from '@mui/material/Paper';
+import SeedMessageForm from '../src/SeedMessageForm';
+import SendIcon from '@mui/icons-material/Send';
+import prompts from '../promptengineering/prompts.json' assert { type: 'json' };
+import { sendMessageValidationSchema } from '../src/shared/validationSchemas';
 
 const CHAT_PARAMS = {
-  approach: 'rrr',
   overrides: {
-    semantic_ranker: true,
-    semantic_captions: false,
-    top: 3,
-    suggest_followup_questions: false,
+    temperature: 1,
   },
 };
 
+const INITIAL_MESSAGES = [
+  {
+    role: 'system',
+    content: prompts.system,
+  },
+];
+
 export default function Index(props) {
-  const [chatHistory, setChatHistory] = React.useState([]);
+  const [messages, setMessages] = React.useState(INITIAL_MESSAGES);
   const [tokenizedMessage, setTokenizedMessage] = React.useState([]);
 
-  const devMode = props.devMode;
+  const appInsights = props.appInsights;
 
-  const sendMessageValidationSchema = yup.object({
-    message: yup
-      .string('Enter your message')
-      .max(1024, 'Message should be of maximum 1024 characters length')
-      .required('Message is required'),
-  });
+  const devMode = props.devMode;
 
   const sendMessageFormik = useFormik({
     initialValues: {
@@ -67,73 +66,24 @@ export default function Index(props) {
   }, [devMode]);
 
   useEffect(() => {
-    if (chatHistory.length > 0) {
-      let answer;
-      let suggestions = [];
-
-      if (chatData.answer.includes('<<')) {
-        // Extracting suggestions <<...>> from the answer
-        answer = chatData.answer.slice(0, chatData.answer.indexOf('<<'));
-        let suggestion = chatData.answer.slice(chatData.answer.indexOf('<<'));
-
-        suggestions = suggestion
-          .split(/<<(.*?)>>/)
-          .map((item) => item.trim())
-          .filter(Boolean)
-          .filter(
-            (item) =>
-              ['\n', '\n\n', '.', 'Next Questions.', '1.', '2.', '3.'].indexOf(
-                item
-              ) == -1
-          );
-
-        if (suggestions.length > 0) {
-          setSuggestions(suggestions);
-        } else {
-          setSuggestions(defaultSuggestions);
-        }
-      } else {
-        answer = chatData.answer;
-      }
-
-      // Extracting citations [...] from the answer
-      let citations = [];
-      answer.replace(/\[(.*?)\]/g, (match, pattern) => {
-        citations.push(pattern);
-      });
-
-      answer = answer.replace(/ *\[[^\]]*]/g, '');
-
-      let lastMessage = chatHistory.pop()['user'];
-      setChatHistory([
-        ...chatHistory,
-        {
-          user: lastMessage,
-          chatPromptUsage: chatData.chatPromptUsage,
-          searchPromptUsage: chatData.searchPromptUsage,
-          bot: answer,
-          thoughts: chatData.thoughts,
-          data_points: chatData.data_points,
-          citations: citations,
-          suggestions: suggestions,
-        },
-      ]);
+    if (chatData) {
+      setMessages(
+        messages.toSpliced(messages.length - 1, 1, {
+          role: 'assistant',
+          content: chatData.answer,
+        })
+      );
     }
   }, [chatData]);
 
   const sendMessage = (message) => {
     sendMessageFormik.setFieldValue('message', '');
     sendMessageFormik.setFieldTouched('message', false);
-    chatHistory.push({ user: message });
+    messages.push({ role: 'user', content: message });
     executeChat({
       data: {
         ...{
-          history: chatHistory.map((item) => {
-            return {
-              user: `${item.user} }`, // ${prompts.follow_up_questions_prompt_content
-              bot: item.bot,
-            };
-          }),
+          messages: messages,
         },
         ...CHAT_PARAMS,
       },
@@ -144,31 +94,33 @@ export default function Index(props) {
       .catch((err) => {
         console.error('Error sending request: ', err);
         toast.error('Error sending request');
+        appInsights.trackException({
+          error: new Error('Error sending request'),
+          severityLevel: SeverityLevel.Error,
+        });
       });
+    messages.push({ role: 'assistant', content: '' }); // To show the loading indicator
   };
 
   const handleSendMessage = () => {
+
     sendMessageFormik.handleSubmit();
+    appInsights.trackEvent({ name: 'click_send_message' });
+    console.log('handleSendMessage', appInsights);
+
   };
 
   const handleTokenizeMessage = (message) => {
     setTokenizedMessage(encode(message));
   };
 
-  const [quickStarts, setQuickStarts] = useState(defaultQuickStarts);
-
   const [suggestions, setSuggestions] = useState(defaultSuggestions);
-
-  const handleQuickStartClick = (index) => {
-    sendMessageFormik.setFieldValue('message', quickStarts[index]).then(() => {
-      sendMessageFormik.handleSubmit();
-    });
-  };
 
   const handleSuggestionClick = (index) => {
     sendMessageFormik.setFieldValue('message', suggestions[index]).then(() => {
       sendMessageFormik.handleSubmit();
     });
+    appInsights.trackEvent({ name: 'click_suggestion' });
   };
 
   const TokenizedText = ({ tokens }) => (
@@ -232,75 +184,86 @@ export default function Index(props) {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 2, mb: 4 }}>
-      {chatHistory.length > 0 ? (
-        <ChatHistory
-          chatHistory={chatHistory}
-          chatError={chatError}
-          devMode={devMode}
-        />
-      ) : (
-        <Stack direction="column" spacing={1} sx={{ mb: 2 }}>
-          <Typography variant="caption">Quick starts:</Typography>
-          {quickStarts.map((item, index) => {
-            return (
-              <Chip
-                label={item}
-                key={index}
-                variant="outlined"
-                onClick={() => handleQuickStartClick(index)}
-                sx={{ bgcolor: '#fff' }}
-              />
-            );
-          })}
-        </Stack>
-      )}
+      <ChatHistory
+        messages={messages}
+        chatError={chatError}
+        chatLoading={chatLoading}
+        devMode={devMode}
+      />
 
-      <Box
-        component="div"
-        sx={{
-          display: 'flex',
-          mb: 2,
-        }}
-      >
-        <TextField
-          id="message"
-          label="Your message"
-          multiline
-          rows={3}
-          placeholder="Type in your question here"
-          variant="outlined"
-          fullWidth
-          value={sendMessageFormik.values.message}
-          onChange={(e) => {
-            if (devMode) handleTokenizeMessage(e.target.value);
-            sendMessageFormik.handleChange(e);
-          }}
-          error={
-            sendMessageFormik.touched.message &&
-            Boolean(sendMessageFormik.errors.message)
-          }
-          helperText={
-            sendMessageFormik.touched.message &&
-            sendMessageFormik.errors.message
-          }
-          sx={{
-            backgroundColor: '#fff',
-          }}
-          onKeyUp ={(e) => {
-            if (e.key === 'Enter' && e.ctrlKey) {
-              sendMessageFormik.handleSubmit();
-            }
-          }}
-        />
-        <Button
-          variant="contained"
-          type="button"
-          onClick={() => handleSendMessage()}
-          color="primary"
-        >
-          Send
-        </Button>
-      </Box>
+      {messages.length > 2 ? (
+        <>
+          <Typography variant="caption">
+            Quick suggestions: (or write your own instruction below)
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+            {suggestions.map((item, index) => {
+              return (
+                <Chip
+                  label={item}
+                  key={index}
+                  variant="outlined"
+                  onClick={() => handleSuggestionClick(index)}
+                  sx={{ bgcolor: '#fff' }}
+                  disabled={chatLoading}
+                />
+              );
+            })}
+          </Stack>
+
+          <Box
+            component="div"
+            sx={{
+              display: 'flex',
+              mb: 4,
+            }}
+          >
+            <TextField
+              id="message"
+              label="Your message"
+              multiline
+              rows={2}
+              placeholder="Type in your question here"
+              variant="outlined"
+              fullWidth
+              value={sendMessageFormik.values.message}
+              onChange={(e) => {
+                if (devMode) handleTokenizeMessage(e.target.value);
+                sendMessageFormik.handleChange(e);
+              }}
+              error={
+                sendMessageFormik.touched.message &&
+                Boolean(sendMessageFormik.errors.message)
+              }
+              helperText={
+                sendMessageFormik.touched.message &&
+                sendMessageFormik.errors.message
+              }
+              sx={{
+                backgroundColor: '#fff',
+              }}
+              onKeyUp={(e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                  sendMessageFormik.handleSubmit();
+                }
+              }}
+            />
+
+            <Button
+              variant="contained"
+              type="button"
+              onClick={() => handleSendMessage()}
+              color="primary"
+              startIcon={<SendIcon />}
+              disabled={chatLoading}
+            >
+              Send
+            </Button>
+          </Box>
+        </>
+      ) : (
+        <SeedMessageForm sendMessage={sendMessage} />
+      )}
 
       {devMode ? (
         <Paper sx={{ mb: 2, paddingX: 2, paddingY: 1 }}>
@@ -317,33 +280,22 @@ export default function Index(props) {
         </Paper>
       ) : null}
 
-      {chatHistory.length > 0 ? (
+      {messages.length > 1 ? (
         <Stack direction="column" spacing={1} sx={{ mb: 4 }}>
-          <Typography variant="caption">Quick suggestions:</Typography>
-          {suggestions.map((item, index) => {
-            return (
-              <Chip
-                label={item}
-                key={index}
-                variant="outlined"
-                onClick={() => handleSuggestionClick(index)}
-                sx={{ bgcolor: '#fff' }}
-              />
-            );
-          })}
           <Chip
             label="Start over"
             variant="filled"
             onClick={() => {
-              setChatHistory([]);
+              setMessages([INITIAL_MESSAGES[0]]);
               setSuggestions(defaultSuggestions);
             }}
             color="secondary"
+            disabled={chatLoading}
           />
         </Stack>
       ) : null}
 
-      <Link href="/about" color="secondary">
+      <Link href="/about" color="primary">
         Details about the project
       </Link>
       <ProTip />
