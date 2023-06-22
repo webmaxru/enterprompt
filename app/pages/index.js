@@ -94,7 +94,7 @@ export default function Index(props) {
       .catch((err) => {
         console.error('Error sending request: ', err);
         toast.error('Error sending request');
-        appInsights.trackException({
+        appInsights?.trackException({
           error: new Error('Error sending request'),
           severityLevel: SeverityLevel.Error,
         });
@@ -105,8 +105,7 @@ export default function Index(props) {
   const handleSendMessage = () => {
 
     sendMessageFormik.handleSubmit();
-    appInsights.trackEvent({ name: 'click_send_message' });
-    console.log('handleSendMessage', appInsights);
+    appInsights?.trackEvent({ name: 'click_send_message' });
 
   };
 
@@ -120,7 +119,7 @@ export default function Index(props) {
     sendMessageFormik.setFieldValue('message', suggestions[index]).then(() => {
       sendMessageFormik.handleSubmit();
     });
-    appInsights.trackEvent({ name: 'click_suggestion' });
+    appInsights?.trackEvent({ name: 'click_suggestion' });
   };
 
   const TokenizedText = ({ tokens }) => (
