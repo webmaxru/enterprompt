@@ -23,9 +23,14 @@ import { useFormik } from 'formik';
 import { seedMessageValidationSchema } from '../src/shared/validationSchemas';
 import { buildSeedMessage } from '../promptengineering/seedMessage.js';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import {
+  useAppInsightsContext,
+  useTrackEvent,
+} from '@microsoft/applicationinsights-react-js';
 
 export default function SeedMessageForm(props) {
-  const appInsights = props.appInsights;
+  //const appInsights = useAppInsightsContext();
+  //const trackEvent = useTrackEvent(appInsights, 'eventName');
 
   const DEFAULT_PRONOUNS = ['They/them/their', 'She/her/hers', 'He/him/his'];
 
@@ -68,6 +73,8 @@ export default function SeedMessageForm(props) {
       const message = buildSeedMessage(values);
 
       props.sendMessage(message);
+      //trackEvent({ name: 'send_seed_message' })
+      //useTrackEvent(appInsights, 'send_seed_message');
 
       setSubmitting(false);
     },

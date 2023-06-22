@@ -19,6 +19,12 @@ import SeedMessageForm from '../src/SeedMessageForm';
 import SendIcon from '@mui/icons-material/Send';
 import prompts from '../promptengineering/prompts.json' assert { type: 'json' };
 import { sendMessageValidationSchema } from '../src/shared/validationSchemas';
+import {
+  useAppInsightsContext,
+  useTrackEvent,
+} from '@microsoft/applicationinsights-react-js';
+import { appInsights} from '../src/AzureAppInsights';
+
 
 const CHAT_PARAMS = {
   overrides: {
@@ -37,7 +43,7 @@ export default function Index(props) {
   const [messages, setMessages] = React.useState(INITIAL_MESSAGES);
   const [tokenizedMessage, setTokenizedMessage] = React.useState([]);
 
-  const appInsights = props.appInsights;
+ // const appInsights = useAppInsightsContext();
 
   const devMode = props.devMode;
 
@@ -94,19 +100,16 @@ export default function Index(props) {
       .catch((err) => {
         console.error('Error sending request: ', err);
         toast.error('Error sending request');
-        appInsights?.trackException({
-          error: new Error('Error sending request'),
-          severityLevel: SeverityLevel.Error,
-        });
+       // useTrackEvent(appInsights, 'error_sending_request');
+       appInsights.trackEvent({ name: 'error_sending_request' });
       });
     messages.push({ role: 'assistant', content: '' }); // To show the loading indicator
   };
 
   const handleSendMessage = () => {
-
     sendMessageFormik.handleSubmit();
-    appInsights?.trackEvent({ name: 'click_send_message' });
-
+    // useTrackEvent(appInsights, 'click_send_message');
+    appInsights.trackEvent({ name: 'click_send_message' });
   };
 
   const handleTokenizeMessage = (message) => {
@@ -119,7 +122,9 @@ export default function Index(props) {
     sendMessageFormik.setFieldValue('message', suggestions[index]).then(() => {
       sendMessageFormik.handleSubmit();
     });
-    appInsights?.trackEvent({ name: 'click_suggestion' });
+    console.log(appInsights)
+    appInsights.trackEvent({ name: 'click_suggestion' });
+    //useTrackEvent(appInsights, 'click_suggestion');
   };
 
   const TokenizedText = ({ tokens }) => (
