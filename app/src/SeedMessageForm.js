@@ -29,10 +29,10 @@ import {
 } from '@microsoft/applicationinsights-react-js';
 
 export default function SeedMessageForm(props) {
-  //const appInsights = useAppInsightsContext();
+  const appInsights = useAppInsightsContext();
 
   let eventName = 'default_event';
-  const trackEvent = function(){} // useTrackEvent(appInsights, eventName);
+  const trackEvent = useTrackEvent(appInsights, eventName);
 
   const DEFAULT_PRONOUNS = ['They/Them/their', 'She/Her/Hers', 'He/Him/His'];
 
@@ -76,8 +76,8 @@ export default function SeedMessageForm(props) {
 
       props.sendMessage(message);
 
-      eventName = 'send_seed_message';
-      trackEvent({ eventName: 'send_seed_message' });
+      eventName = 'send_seed_message1';
+      trackEvent({ eventName: 'send_seed_message2' });
 
       setSubmitting(false);
     },

@@ -15,7 +15,7 @@
     "@emotion/server": "latest",
     "@emotion/styled": "latest",
     "@microsoft/applicationinsights-react-js": "^3.4.3",
-    "@microsoft/applicationinsights-web": "^3.0.2",
+    "@microsoft/applicationinsights-web": "^2.8.14",
     "@mui/icons-material": "latest",
     "@mui/material": "latest",
     "axios": "^1.4.0",
