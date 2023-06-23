@@ -29,10 +29,10 @@ import {
 } from '@microsoft/applicationinsights-react-js';
 
 export default function SeedMessageForm(props) {
-  const appInsights = useAppInsightsContext();
+  //const appInsights = useAppInsightsContext();
 
   let eventName = 'default_event';
-  const trackEvent = useTrackEvent(appInsights, eventName);
+  const trackEvent = function(){} // useTrackEvent(appInsights, eventName);
 
   const DEFAULT_PRONOUNS = ['They/Them/their', 'She/Her/Hers', 'He/Him/His'];
 
@@ -171,7 +171,7 @@ export default function SeedMessageForm(props) {
               fullWidth
               id="custom_characteristic"
               name="custom_characteristic"
-              label="More characteristics (optional)"
+              label="More characteristics (comma-separated, optional)"
               value={seedMessageFormik.values.custom_characteristic}
               onChange={seedMessageFormik.handleChange}
               error={

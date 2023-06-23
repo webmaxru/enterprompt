@@ -34,9 +34,7 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import ServiceWorkerRegistration from '../src/ServiceWorkerRegistration';
-import { reactPlugin } from '../src/AzureAppInsights';
 import { AppInsightsContext } from '@microsoft/applicationinsights-react-js';
-import { withAITracking } from '@microsoft/applicationinsights-react-js';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -176,7 +174,7 @@ const MyApp = (props) => {
         />
       </Head>
       <ThemeProvider theme={theme}>
-        <AppInsightsContext.Provider value={reactPlugin}>
+     
           <Box sx={{ display: 'flex' }}>
             <CssBaseline />
             <AppBar component="nav">
@@ -253,7 +251,6 @@ const MyApp = (props) => {
           </Box>
           <ToastContainer position={toast.POSITION.BOTTOM_RIGHT} />
           <ServiceWorkerRegistration />
-        </AppInsightsContext.Provider>
       </ThemeProvider>
     </CacheProvider>
   );

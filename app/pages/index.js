@@ -42,10 +42,10 @@ export default function Index(props) {
   const [messages, setMessages] = React.useState(INITIAL_MESSAGES);
   const [tokenizedMessage, setTokenizedMessage] = React.useState([]);
 
-  const appInsights = useAppInsightsContext();
+  //const appInsights = useAppInsightsContext();
 
   let eventName = 'default_event';
-  const trackEvent = useTrackEvent(appInsights, eventName);
+  const trackEvent = function(){} // useTrackEvent(appInsights, eventName);
 
   const devMode = props.devMode;
 
