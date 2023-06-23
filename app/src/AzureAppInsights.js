@@ -15,7 +15,7 @@ const appInsights = new ApplicationInsights({
     connectionString: process.env.NEXT_PUBLIC_APP_INSIGHT,
     extensions: [reactPlugin],
     extensionConfig: {},
-    enableAutoRouteTracking: true,
+    enableAutoRouteTracking: false,
     disableAjaxTracking: false,
     autoTrackPageVisitTime: true,
     enableCorsCorrelation: true,
