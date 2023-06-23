@@ -105,6 +105,15 @@ async function sendMessage(context, req) {
 
   context.log(messages);
 
+  client.trackEvent({
+    name: 'call_openai_chat',
+    tagOverrides: operationIdOverride,
+    properties: {
+      id: new Date().toISOString() + Math.random().toString().substr(2, 8),
+      timestamp: Math.floor(Date.now() / 1),
+    },
+  });
+
   const chatCompletions = await openAIClient.getChatCompletions(
     process.env['AZURE_OPENAI_CHAT_DEPLOYMENT'],
     messages,
@@ -114,8 +123,6 @@ async function sendMessage(context, req) {
       n: 1,
     }
   );
-
-  // STEP 3: Generate a contextual and content specific answer using the search results and chat history
 
   context.res = {
     body: {
