@@ -83,7 +83,9 @@ export default function ChatHistory(props) {
                           display: 'block',
                         }}
                       >
-                        {chatError && index == messages.length - 1 ? (
+                        {chatError &&
+                        index != 0 &&
+                        index == messages.length - 1 ? (
                           <Typography
                             sx={{ display: 'inline' }}
                             component="span"
