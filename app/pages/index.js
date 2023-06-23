@@ -23,7 +23,7 @@ import {
   useAppInsightsContext,
   useTrackEvent,
 } from '@microsoft/applicationinsights-react-js';
-
+import ReplayIcon from '@mui/icons-material/Replay';
 
 const CHAT_PARAMS = {
   overrides: {
@@ -45,7 +45,7 @@ export default function Index(props) {
   //const appInsights = useAppInsightsContext();
 
   let eventName = 'default_event';
-  const trackEvent = function(){} // useTrackEvent(appInsights, eventName);
+  const trackEvent = function () {}; // useTrackEvent(appInsights, eventName);
 
   const devMode = props.devMode;
 
@@ -87,11 +87,10 @@ export default function Index(props) {
   const sendMessage = (message) => {
     sendMessageFormik.setFieldValue('message', '');
     sendMessageFormik.setFieldTouched('message', false);
-    messages.push({ role: 'user', content: message });
     executeChat({
       data: {
         ...{
-          messages: messages,
+          messages: [...messages, { role: 'user', content: message }],
         },
         ...CHAT_PARAMS,
       },
@@ -105,9 +104,12 @@ export default function Index(props) {
 
         eventName = 'error_sending_request';
         trackEvent({ eventName: 'error_sending_request' });
-
       });
-    messages.push({ role: 'assistant', content: '' }); // To show the loading indicator
+    setMessages([
+      ...messages,
+      { role: 'user', content: message },
+      { role: 'assistant', content: '' },
+    ]);
   };
 
   const handleSendMessage = () => {
@@ -115,7 +117,6 @@ export default function Index(props) {
 
     eventName = 'click_send_message';
     trackEvent({ eventName: 'click_send_message' });
-
   };
 
   const handleTokenizeMessage = (message) => {
@@ -131,7 +132,14 @@ export default function Index(props) {
 
     eventName = 'click_suggestion';
     trackEvent({ eventName: 'click_suggestion' });
+  };
 
+  const handleStartOver = () => {
+    setMessages([INITIAL_MESSAGES[0]]);
+    sendMessageFormik.setFieldValue('message', '');
+    sendMessageFormik.setFieldTouched('message', false);
+    setSuggestions(defaultSuggestions);
+    setTokenizedMessage([]);
   };
 
   const TokenizedText = ({ tokens }) => (
@@ -200,6 +208,7 @@ export default function Index(props) {
         chatError={chatError}
         chatLoading={chatLoading}
         devMode={devMode}
+        handleStartOver={handleStartOver}
       />
 
       {messages.length > 2 ? (
@@ -207,15 +216,15 @@ export default function Index(props) {
           <Typography variant="caption">
             Quick suggestions: (or write your own instruction below)
           </Typography>
-          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+          <Stack direction="row" sx={{ flexWrap: 'wrap' }}>
             {suggestions.map((item, index) => {
               return (
                 <Chip
+                  sx={{ mb: 1, mr: 1, bgcolor: '#fff' }}
                   label={item}
                   key={index}
                   variant="outlined"
                   onClick={() => handleSuggestionClick(index)}
-                  sx={{ bgcolor: '#fff' }}
                   disabled={chatLoading}
                 />
               );
@@ -292,18 +301,19 @@ export default function Index(props) {
       ) : null}
 
       {messages.length > 1 ? (
-        <Stack direction="column" spacing={1} sx={{ mb: 4 }}>
-          <Chip
-            label="Start over"
-            variant="filled"
-            onClick={() => {
-              setMessages([INITIAL_MESSAGES[0]]);
-              setSuggestions(defaultSuggestions);
-            }}
-            color="secondary"
-            disabled={chatLoading}
-          />
-        </Stack>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<ReplayIcon />}
+          onClick={() => {
+            handleStartOver();
+          }}
+          color="primary"
+          fullWidth
+          sx={{ mb: 2 }}
+        >
+          Start over
+        </Button>
       ) : null}
 
       <Link href="/about" color="primary">

@@ -13,6 +13,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { toast } from 'react-toastify';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Button from '@mui/material/Button';
+import ReplayIcon from '@mui/icons-material/Replay';
 
 export default function ChatHistory(props) {
   const messages = props.messages;
@@ -78,7 +79,7 @@ export default function ChatHistory(props) {
                           display: 'block',
                         }}
                       >
-                        {chatError ? (
+                        {chatError && index == messages.length-1 ? (
                           <Typography
                             sx={{ display: 'inline' }}
                             component="span"
@@ -86,7 +87,15 @@ export default function ChatHistory(props) {
                             color="error"
                           >
                             There is an error while sending your message:{' '}
-                            {chatError['message']}. Please try again.
+                            {chatError['message']}.
+                            <Button
+                                    size="small"
+                                    variant="outlined"
+                                    startIcon={<ReplayIcon />}
+                                    onClick={props.handleStartOver}
+                                  >
+                                    Start over
+                                  </Button>
                           </Typography>
                         ) : item['content'] ? (
                           <>

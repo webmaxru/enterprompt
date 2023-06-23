@@ -3,7 +3,17 @@ import {
   getOperationIdOverride,
 } from '../Shared/utils.mjs';
 import appInsights from 'applicationinsights';
-appInsights.setup();
+appInsights.setup()
+    .setAutoDependencyCorrelation(true)
+    .setAutoCollectRequests(true)
+    .setAutoCollectPerformance(true, true)
+    .setAutoCollectExceptions(true)
+    .setAutoCollectDependencies(true)
+    .setAutoCollectConsole(true)
+    .setUseDiskRetryCaching(true)
+    .setSendLiveMetrics(true)
+    .setDistributedTracingMode(appInsights.DistributedTracingModes.AI)
+    .start();
 const client = appInsights.defaultClient;
 import { SearchClient, AzureKeyCredential } from '@azure/search-documents';
 import { OpenAIClient } from '@azure/openai';
