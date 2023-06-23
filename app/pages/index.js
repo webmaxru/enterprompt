@@ -23,7 +23,6 @@ import {
   useAppInsightsContext,
   useTrackEvent,
 } from '@microsoft/applicationinsights-react-js';
-import { appInsights} from '../src/AzureAppInsights';
 
 
 const CHAT_PARAMS = {
@@ -42,6 +41,8 @@ const INITIAL_MESSAGES = [
 export default function Index(props) {
   const [messages, setMessages] = React.useState(INITIAL_MESSAGES);
   const [tokenizedMessage, setTokenizedMessage] = React.useState([]);
+
+  const appInsights = useAppInsightsContext();
 
   let eventName = 'default_event';
   const trackEvent = useTrackEvent(appInsights, eventName);
