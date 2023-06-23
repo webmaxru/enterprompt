@@ -18,7 +18,6 @@ export default function ChatHistory(props) {
   const messages = props.messages;
   const chatError = props.chatError;
   const devMode = props.devMode;
-  const appInsights = props.appInsights;
 
 
   return (

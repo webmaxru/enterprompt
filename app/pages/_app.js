@@ -34,10 +34,9 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import ServiceWorkerRegistration from '../src/ServiceWorkerRegistration';
-import { reactPlugin }  from '../src/AzureAppInsights';
-import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
+import { reactPlugin } from '../src/AzureAppInsights';
+import { AppInsightsContext } from '@microsoft/applicationinsights-react-js';
 import { withAITracking } from '@microsoft/applicationinsights-react-js';
-
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -67,7 +66,7 @@ const description =
   'ChatGPT-powered bot whose only goal is to help you write positive feedback to your colleagues';
 const host = 'praise.promptengineering.rocks';
 
- const MyApp = (props) => {
+const MyApp = (props) => {
   const axios = Axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
     headers: {
@@ -177,89 +176,90 @@ const host = 'praise.promptengineering.rocks';
         />
       </Head>
       <ThemeProvider theme={theme}>
-        <Box sx={{ display: 'flex' }}>
-          <CssBaseline />
-          <AppBar component="nav">
-            <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleDrawerToggle}
-                sx={{ mr: 2, display: { sm: 'block' } }}
+        <AppInsightsContext.Provider value={reactPlugin}>
+          <Box sx={{ display: 'flex' }}>
+            <CssBaseline />
+            <AppBar component="nav">
+              <Toolbar>
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  edge="start"
+                  onClick={handleDrawerToggle}
+                  sx={{ mr: 2, display: { sm: 'block' } }}
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{ flexGrow: 1, alignItems: 'center' }}
+                >
+                  <VolunteerActivismIcon sx={{ fontSize: 20 }} /> {logo}
+                </Typography>
+                <Box sx={{ display: { sm: 'block' } }}>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={devMode}
+                          onChange={devModeToggle}
+                          name="devmode"
+                          color="secondary"
+                        />
+                      }
+                      label="Developer"
+                    />
+                  </FormGroup>
+                </Box>
+              </Toolbar>
+            </AppBar>
+            <Box component="nav">
+              <Drawer
+                container={container}
+                variant="temporary"
+                open={mobileOpen}
+                onClose={handleDrawerToggle}
+                ModalProps={{
+                  keepMounted: true, // Better open performance on mobile.
+                }}
+                sx={{
+                  display: { xs: 'block', sm: 'block' },
+                  '& .MuiDrawer-paper': {
+                    boxSizing: 'border-box',
+                    width: drawerWidth,
+                  },
+                }}
               >
-                <MenuIcon />
-              </IconButton>
-              <Typography
-                variant="h6"
-                component="div"
-                sx={{ flexGrow: 1, alignItems: 'center' }}
-              >
-                <VolunteerActivismIcon sx={{ fontSize: 20 }} /> {logo}
-              </Typography>
-              <Box sx={{ display: { sm: 'block' } }}>
-                <FormGroup>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={devMode}
-                        onChange={devModeToggle}
-                        name="devmode"
-                        color="secondary"
-                      />
-                    }
-                    label="Developer"
-                  />
-                </FormGroup>
-              </Box>
-            </Toolbar>
-          </AppBar>
-          <Box component="nav">
-            <Drawer
-              container={container}
-              variant="temporary"
-              open={mobileOpen}
-              onClose={handleDrawerToggle}
-              ModalProps={{
-                keepMounted: true, // Better open performance on mobile.
-              }}
+                {drawer}
+              </Drawer>
+            </Box>
+            <Box
+              component="main"
               sx={{
-                display: { xs: 'block', sm: 'block' },
-                '& .MuiDrawer-paper': {
-                  boxSizing: 'border-box',
-                  width: drawerWidth,
-                },
+                backgroundColor: (theme) => theme.palette.grey[100],
+                flexGrow: 1,
+                height: '100vh',
+                overflow: 'auto',
               }}
             >
-              {drawer}
-            </Drawer>
-          </Box>
-          <Box
-            component="main"
-            sx={{
-              backgroundColor: (theme) => theme.palette.grey[100],
-              flexGrow: 1,
-              height: '100vh',
-              overflow: 'auto',
-            }}
-          >
-            <Toolbar />
+              <Toolbar />
 
-            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-            <CssBaseline />
+              {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+              <CssBaseline />
               <Component {...pageProps} devMode={devMode} />
-            <Copyright sx={{ pt: 4 }} />
+              <Copyright sx={{ pt: 4 }} />
+            </Box>
           </Box>
-        </Box>
-        <ToastContainer position={toast.POSITION.BOTTOM_RIGHT} />
-        <ServiceWorkerRegistration />
+          <ToastContainer position={toast.POSITION.BOTTOM_RIGHT} />
+          <ServiceWorkerRegistration />
+        </AppInsightsContext.Provider>
       </ThemeProvider>
     </CacheProvider>
   );
-}
+};
 
-export default withAITracking(reactPlugin, MyApp);
-
+export default MyApp;
 
 MyApp.propTypes = {
   Component: PropTypes.elementType.isRequired,

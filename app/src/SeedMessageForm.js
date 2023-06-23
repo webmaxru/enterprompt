@@ -29,10 +29,12 @@ import {
 } from '@microsoft/applicationinsights-react-js';
 
 export default function SeedMessageForm(props) {
-  //const appInsights = useAppInsightsContext();
-  //const trackEvent = useTrackEvent(appInsights, 'eventName');
+  const appInsights = useAppInsightsContext();
 
-  const DEFAULT_PRONOUNS = ['They/them/their', 'She/her/hers', 'He/him/his'];
+  let eventName = 'default_event';
+  const trackEvent = useTrackEvent(appInsights, eventName);
+
+  const DEFAULT_PRONOUNS = ['They/Them/their', 'She/Her/Hers', 'He/Him/His'];
 
   const DEFAULT_CHARACTERISTICS = [
     'Positive attitude',
@@ -73,8 +75,9 @@ export default function SeedMessageForm(props) {
       const message = buildSeedMessage(values);
 
       props.sendMessage(message);
-      //trackEvent({ name: 'send_seed_message' })
-      //useTrackEvent(appInsights, 'send_seed_message');
+
+      eventName = 'send_seed_message';
+      trackEvent({ eventName: 'send_seed_message' });
 
       setSubmitting(false);
     },
@@ -243,15 +246,23 @@ export default function SeedMessageForm(props) {
           </form>
 
           <Typography variant="body2">
-            The app does not store any data and only tracks number of usages. It
-            operates under{' '}
+            The app itself does not store any data and only tracks number of
+            usages using Azure Application Insights. Cloud data operations
+            follow{' '}
             <Link
               href="https://learn.microsoft.com/en-us/legal/cognitive-services/openai/data-privacy"
               color="primary"
             >
               Data, privacy, and security for Azure OpenAI Service
             </Link>{' '}
-            terms.
+            and{' '}
+            <Link
+              href="https://learn.microsoft.com/en-us/azure/azure-monitor/app/data-retention-privacy"
+              color="primary"
+            >
+              Data collection, retention, and storage in Application Insights
+            </Link>
+            .
           </Typography>
           <Typography variant="body2" color="error.main">
             Anyway, DO NOT enter any sensitive/NDA information.

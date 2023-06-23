@@ -43,7 +43,8 @@ export default function Index(props) {
   const [messages, setMessages] = React.useState(INITIAL_MESSAGES);
   const [tokenizedMessage, setTokenizedMessage] = React.useState([]);
 
- // const appInsights = useAppInsightsContext();
+  let eventName = 'default_event';
+  const trackEvent = useTrackEvent(appInsights, eventName);
 
   const devMode = props.devMode;
 
@@ -100,16 +101,20 @@ export default function Index(props) {
       .catch((err) => {
         console.error('Error sending request: ', err);
         toast.error('Error sending request');
-       // useTrackEvent(appInsights, 'error_sending_request');
-       appInsights.trackEvent({ name: 'error_sending_request' });
+
+        eventName = 'error_sending_request';
+        trackEvent({ eventName: 'error_sending_request' });
+
       });
     messages.push({ role: 'assistant', content: '' }); // To show the loading indicator
   };
 
   const handleSendMessage = () => {
     sendMessageFormik.handleSubmit();
-    // useTrackEvent(appInsights, 'click_send_message');
-    appInsights.trackEvent({ name: 'click_send_message' });
+
+    eventName = 'click_send_message';
+    trackEvent({ eventName: 'click_send_message' });
+
   };
 
   const handleTokenizeMessage = (message) => {
@@ -122,9 +127,10 @@ export default function Index(props) {
     sendMessageFormik.setFieldValue('message', suggestions[index]).then(() => {
       sendMessageFormik.handleSubmit();
     });
-    console.log(appInsights)
-    appInsights.trackEvent({ name: 'click_suggestion' });
-    //useTrackEvent(appInsights, 'click_suggestion');
+
+    eventName = 'click_suggestion';
+    trackEvent({ eventName: 'click_suggestion' });
+
   };
 
   const TokenizedText = ({ tokens }) => (
