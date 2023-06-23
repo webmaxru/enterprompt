@@ -14,12 +14,16 @@ import { toast } from 'react-toastify';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Button from '@mui/material/Button';
 import ReplayIcon from '@mui/icons-material/Replay';
+import {
+  useAppInsightsContext,
+  useTrackEvent,
+} from '@microsoft/applicationinsights-react-js';
 
 export default function ChatHistory(props) {
   const messages = props.messages;
   const chatError = props.chatError;
   const devMode = props.devMode;
-
+  const appInsights = useAppInsightsContext();
 
   return (
     <List sx={{ width: '100%', bgcolor: 'background.paper', mb: 2 }}>
@@ -79,7 +83,7 @@ export default function ChatHistory(props) {
                           display: 'block',
                         }}
                       >
-                        {chatError && index == messages.length-1 ? (
+                        {chatError && index == messages.length - 1 ? (
                           <Typography
                             sx={{ display: 'inline' }}
                             component="span"
@@ -89,13 +93,13 @@ export default function ChatHistory(props) {
                             There is an error while sending your message:{' '}
                             {chatError['message']}.
                             <Button
-                                    size="small"
-                                    variant="outlined"
-                                    startIcon={<ReplayIcon />}
-                                    onClick={props.handleStartOver}
-                                  >
-                                    Start over
-                                  </Button>
+                              size="small"
+                              variant="outlined"
+                              startIcon={<ReplayIcon />}
+                              onClick={props.handleStartOver}
+                            >
+                              Start over
+                            </Button>
                           </Typography>
                         ) : item['content'] ? (
                           <>
@@ -115,9 +119,12 @@ export default function ChatHistory(props) {
                                 <CopyToClipboard
                                   sx={{ mt: 1 }}
                                   text={item['content']}
-                                  onCopy={() =>
-                                    toast.info('Copied to clipboard')
-                                  }
+                                  onCopy={() => {
+                                    toast.info('Copied to clipboard');
+                                    appInsights.trackEvent({
+                                      name: 'copy_to_clipboard',
+                                    });
+                                  }}
                                 >
                                   <Button
                                     size="small"

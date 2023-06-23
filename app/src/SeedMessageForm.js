@@ -31,9 +31,6 @@ import {
 export default function SeedMessageForm(props) {
   const appInsights = useAppInsightsContext();
 
-  let eventName = 'default_event';
-  const trackEvent = useTrackEvent(appInsights, eventName);
-
   const DEFAULT_PRONOUNS = ['They/Them/their', 'She/Her/Hers', 'He/Him/His'];
 
   const DEFAULT_CHARACTERISTICS = [
@@ -76,8 +73,9 @@ export default function SeedMessageForm(props) {
 
       props.sendMessage(message);
 
-      eventName = 'send_seed_message1';
-      trackEvent({ eventName: 'send_seed_message2' });
+      appInsights.trackEvent({
+        name: 'send_seed_message',
+      });
 
       setSubmitting(false);
     },

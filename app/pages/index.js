@@ -96,14 +96,20 @@ export default function Index(props) {
       },
     })
       .then(() => {
-        console.log('Success sending request');
+        appInsights.trackEvent({
+          name: 'success_sending_request',
+        });
       })
       .catch((err) => {
         console.error('Error sending request: ', err);
         toast.error('Error sending request');
 
-        eventName = 'error_sending_request';
-        trackEvent({ eventName: 'error_sending_request' });
+        appInsights.trackEvent({
+          name: 'error_sending_request',
+          properties: {
+            error: err,
+          },
+        });
       });
     setMessages([
       ...messages,
@@ -115,8 +121,9 @@ export default function Index(props) {
   const handleSendMessage = () => {
     sendMessageFormik.handleSubmit();
 
-    eventName = 'click_send_message';
-    trackEvent({ eventName: 'click_send_message' });
+    appInsights.trackEvent({
+      name: 'click_send_message',
+    });
   };
 
   const handleTokenizeMessage = (message) => {
@@ -130,8 +137,9 @@ export default function Index(props) {
       sendMessageFormik.handleSubmit();
     });
 
-    eventName = 'click_suggestion';
-    trackEvent({ eventName: 'click_suggestion' });
+    appInsights.trackEvent({
+      name: 'click_suggestion',
+    });
   };
 
   const handleStartOver = () => {
@@ -140,6 +148,9 @@ export default function Index(props) {
     sendMessageFormik.setFieldTouched('message', false);
     setSuggestions(defaultSuggestions);
     setTokenizedMessage([]);
+    appInsights.trackEvent({
+      name: 'click_start_over',
+    });
   };
 
   const TokenizedText = ({ tokens }) => (
