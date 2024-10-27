@@ -9,7 +9,15 @@ const { setLogLevel } = require('@azure/logger');
 
 setLogLevel('info');
 
-function stringTemplateParser(expression, valueObj) {
+/**
+ * Parses a string template and replaces placeholders with corresponding values from a given object.
+ *
+ * @param {string} expression - The string template containing placeholders in the format {{key}}.
+ * @param {Object} valueObj - An object containing key-value pairs where keys correspond to placeholders in the template.
+ * @returns {string} - The resulting string with placeholders replaced by their corresponding values from the valueObj.
+ */
+function string_template_parser
+(expression, valueObj) {
   const templateMatcher = /{{\s?([^{}\s]*)\s?}}/g;
   let text = expression.replace(templateMatcher, (substring, value, index) => {
     value = valueObj[value];
@@ -49,7 +57,7 @@ function get_chat_history_as_text(
   return history_text;
 }
 
-function nonewlines(s) {
+function no_new_lines(s) {
   if (!s) return '';
   return s.replace(/\n/g, ' ').replace(/\r/g, ' ');
 }
