@@ -1,0 +1,13 @@
+services:
+    app:
+        build:
+            context: ./app
+        environment:
+            NODE_ENV: production
+        ports:
+            - 3000:3000
+    scripts:
+        build:
+            context: ./scripts
+        ports:
+            - 5000:5000
