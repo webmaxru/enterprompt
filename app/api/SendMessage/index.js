@@ -23,7 +23,7 @@ function get_chat_history_as_text(
   include_last_turn = true,
   approx_max_tokens = 1000
 ) {
-  let history_text = '';
+  let history_text = ``;
   for (
     let i = include_last_turn ? history.length - 1 : history.length - 2;
     i >= 0;
@@ -31,17 +31,12 @@ function get_chat_history_as_text(
   ) {
     let h = history[i];
     history_text =
-      '<|im_start|>user' +
-      '\n' +
-      h['user'] +
-      '\n' +
-      '<|im_end|>' +
-      '\n' +
-      '<|im_start|>assistant' +
-      '\n' +
-      (h['bot'] ? h['bot'] + '<|im_end|>' : '') +
-      '\n' +
-      history_text;
+      `<|im_start|>user 
+      ${h['user']} 
+      <|im_end|> 
+      <|im_start|>assistant 
+      ${h['bot'] ? h['bot'] + `<|im_end|>` : ``} 
+      ${history_text}`;
     if (history_text.length > approx_max_tokens * 4) {
       break;
     }
