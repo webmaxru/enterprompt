@@ -74,11 +74,11 @@ export default function ChatHistory(props) {
                         >
                           Search query generation request is{' '}
                           {item['searchPromptUsage']['totalTokens']} tokens
-                          total (text-davinci-003)
+                          total (gpt-4o)
                           <br />
                           Chat prompt is{' '}
                           {item['chatPromptUsage']['promptTokens']} tokens incl.
-                          metaprompt and history (gpt-35-turbo)
+                          metaprompt and history (gpt-4o)
                         </Typography>
                       ) : null}
                     </Paper>
@@ -153,7 +153,7 @@ export default function ChatHistory(props) {
                               Chat completion is{' '}
                               {item['chatPromptUsage']['completionTokens']}{' '}
                               tokens incl. citations and suggestions
-                              (gpt-35-turbo)
+                              (gpt-4o)
                             </Typography>
                           ) : null}
                         </>
