@@ -41,7 +41,9 @@ Just rename `.env.external-api.local` to `.env.local` and you are good to go. Yo
 
 2. In your Azure account create a new resource group with the following services (free or lowest tier is fine):
 
-- Azure OpenAI Service with 2 model deployments: text-davinci-003 and gpt-35-turbo
+- Azure OpenAI Service with 2 model deployments: gpt-4o and gpt-4 (or gpt-35-turbo-16k for cost efficiency)
+  * Note: gpt-4o is the latest multimodal model providing excellent performance
+  * Alternative options: gpt-4-turbo, gpt-4, or gpt-35-turbo-16k depending on your needs and budget
 - Azure Cognitive Search service. Free tier is fine.
 - Form Recognizer. Free tier is fine.
 - Azure Storage
@@ -54,6 +56,11 @@ Just rename `.env.external-api.local` to `.env.local` and you are good to go. Yo
 - Run `./scripts/prepdocs.ps1` or `./scripts/prepdocs.sh` (depending on your OS). This script will upload your PDFs to Azure Storage (split into pages) and create a new index in Azure Cognitive Search.
 
 4. In `app/api/` folder rename `local.settings.template.json` to `local.settings.json` and fill in the values there by the names, endpoints, keys from the first step.
+
+**Important:** The `AZURE_OPENAI_CHAT_DEPLOYMENT` and `AZURE_OPENAI_GPT_DEPLOYMENT` should reference your Azure OpenAI model deployment names. Recommended models:
+- For best performance: `gpt-4o` (both deployments can use the same model)
+- For cost efficiency: `gpt-35-turbo-16k` or `gpt-4-turbo`
+- Legacy support: `gpt-35-turbo` (may require adjustments for optimal performance)
 
 5. Run `func start` in `app/api/` folder. This will start Azure Functions locally.
 
